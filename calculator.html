@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="uk" id="htmlLang">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор 3D-друку</title>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' width='100' height='100' viewBox='0 0 50 50' style='fill:%2340C057;'><path d='M 14 4 C 8.4886661 4 4 8.4886661 4 14 L 4 36 C 4 41.511334 8.4886661 46 14 46 L 36 46 C 41.511334 46 46 41.511334 46 36 L 46 14 C 46 8.4886661 41.511334 4 36 4 L 14 4 z M 18 10 L 32 10 C 34.209 10 36 11.791 36 14 L 36 36 C 36 38.209 34.209 40 32 40 L 18 40 C 15.791 40 14 38.209 14 36 L 14 14 C 14 11.791 15.791 10 18 10 z M 18 13 C 17.448 13 17 13.448 17 14 L 17 18 C 17 18.552 17.448 19 18 19 L 32 19 C 32.552 19 33 18.552 33 18 L 33 14 C 33 13.448 32.552 13 32 13 L 18 13 z M 19 21 A 2 2 0 0 0 19 25 A 2 2 0 0 0 19 21 z M 25 21 A 2 2 0 0 0 25 25 A 2 2 0 0 0 25 21 z M 31 21 A 2 2 0 0 0 31 25 A 2 2 0 0 0 31 21 z M 19 27 A 2 2 0 0 0 19 31 A 2 2 0 0 0 19 27 z M 25 27 A 2 2 0 0 0 25 31 A 2 2 0 0 0 25 27 z M 31 27 A 2 2 0 0 0 31 31 A 2 2 0 0 0 31 27 z M 19 33 C 17.895 33 17 33.895 17 35 C 17 36.105 17.895 37 19 37 L 25 37 C 26.105 37 27 36.105 27 35 C 27 33.895 26.105 33 25 33 L 19 33 z M 31 33 A 2 2 0 0 0 31 37 A 2 2 0 0 0 31 33 z'></path></svg>">
+    <style>
+        :root {
+            --bg-color: #2b2b2d;
+            --bg-light: #3c3c3e;
+            --accent-color: #17cc5f;
+            --accent-color-dim: rgba(23, 204, 95, 0.1);
+            --accent-color-hover: #1efc74;
+            --text-color: #f0f0f0;
+            --text-color-dim: #9e9e9e;
+            --border-color: #555;
+            --input-bg: #444;
+            --danger-color: #e53935;
+            --danger-hover: #f44336;
+            --container-radius: 12px;
+            --transition-speed: 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-10px); }
+        }
+        .fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .calculator-container {
+            background-color: var(--bg-light);
+            border-radius: var(--container-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 650px;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* --- Header & Logo --- */
+        .header {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #15a84f 100%);
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            border-top-left-radius: var(--container-radius);
+            border-top-right-radius: var(--container-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1 px; 
+        }
+        .creality-logo {
+            width: auto;
+            height: 180px; 
+            fill: white;
+			margin: -73px 0;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+        }
+        .logo-subtext {
+            font-size: 0.6em; 
+            font-weight: 500;
+			color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 25px;
+            display: grid;
+            gap: 20px;
+        }
+        
+        /* --- General Elements (Buttons, Fieldsets) --- */
+        
+        button {
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 600;
+            padding: 9px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        button:hover { transform: scale(1.02); }
+        button:active { transform: scale(0.98); transition-duration: 0.05s; }
+        
+        .btn-primary { background-color: var(--accent-color); color: white; }
+        .btn-primary:hover { background-color: var(--accent-color-hover); color: var(--bg-color); }
+        .btn-secondary { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: #777; background-color: #555; }
+        .btn-danger { background-color: var(--input-bg); color: var(--danger-color); border: 1px solid var(--danger-color); }
+        .btn-danger:hover { background-color: rgba(229, 57, 53, 0.1); border-color: var(--danger-hover); color: var(--danger-hover); }
+        .btn-icon { padding: 5px 10px; font-size: 1.2em; line-height: 1; }
+
+        fieldset, details {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0;
+            margin: 0;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        details[open] summary { background-color: rgba(0,0,0,0.1); }
+        
+        .section-header { display: flex; align-items: center; gap: 10px; padding: 15px 20px; transition: background-color var(--transition-speed) ease; }
+        details .section-header { cursor: pointer; border-radius: 8px; }
+        details .section-header:hover { background-color: var(--border-color); }
+        
+        .section-header svg { width: 20px; height: 20px; fill: var(--accent-color); flex-shrink: 0; }
+        legend, summary { font-weight: 600; font-size: 1.1em; color: var(--accent-color); padding: 0; margin: 0; cursor: default; }
+        summary { cursor: pointer; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+
+        .details-content, .content-wrapper {
+            padding: 0 20px 15px 20px;
+            background-color: var(--bg-light);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 160px;
+            gap: 10px 15px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .time-input-group { grid-template-columns: 1fr 75px 75px; grid-row-gap: 4px; }
+        .input-group label { font-size: 0.95em; color: #ccc; }
+        .time-label { font-size: 0.8em; color: var(--text-color-dim); text-align: right; padding-right: 10px; }
+        .time-input-group label { grid-column: 1 / -1; margin-bottom: -10px; }
+        .time-input-group .time-label-spacer { grid-column: 1 / 2; }
+
+        /* --- Inputs & Selects --- */
+        .input-group input, .input-group select, .filament-item input,
+        .preset-controls select, .filament-item select,
+        #newFilamentForm input, .top-controls select {
+            font-size: 1em;
+            font-weight: 500;
+            padding: 9px 12px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            width: 100%;
+            text-align: right;
+            transition: all var(--transition-speed);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .input-group select, .preset-controls select, 
+        .filament-item select, .top-controls select {
+            text-align: left;
+            cursor: pointer;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%239e9e9e" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 35px;
+        }
+        
+        .filament-item select { text-align: right; background-position: right 5px center; padding-right: 30px; }
+        
+        .input-group input:hover, .input-group select:hover,
+        .preset-controls select:hover, .filament-item select:hover,
+        #newFilamentForm input:hover, .top-controls select:hover { border-color: #777; }
+        
+        .input-group input:focus, .input-group select:focus,
+        .preset-controls select:focus, .filament-item select:focus,
+        #newFilamentForm input:focus, .top-controls select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-color-dim);
+        }
+        
+        /* --- Language Button Style --- */
+        #languageSwitcher {
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 9px 12px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            text-align: center;
+            transition: all var(--transition-speed);
+            
+            /* Overriding width and aligning to the right */
+            width: 50px; 
+            align-self: flex-end; 
+        }
+        
+        #languageSwitcher:hover {
+            border-color: #777; 
+            background-color: #555;
+        }
+        
+        #languageSwitcher:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-color-dim);
+        }
+        
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* --- Results Section --- */
+        .results-container {
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-bottom-left-radius: var(--container-radius);
+            border-bottom-right-radius: var(--container-radius);
+        }
+        .results-container h3 { margin: 0 0 20px 0; text-align: center; color: var(--accent-color); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .results-container h3 svg { width: 22px; height: 22px; fill: var(--accent-color); }
+        
+        .result-item { 
+            display: flex; justify-content: space-between; 
+            font-size: 1.1em; margin-bottom: 12px; padding: 12px 8px;
+            border-bottom: 1px dashed #555;
+            border-radius: 6px;
+            transition: all var(--transition-speed) ease;
+        }
+        .result-item:hover { background-color: var(--bg-light); }
+        .result-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .result-item span:first-child { font-weight: 500; color: #eee; }
+        .result-item span:last-child { font-weight: 600; color: var(--accent-color); }
+        .result-item.profit span:last-child { color: var(--accent-color-hover); }
+        .result-item.total-cost span { font-weight: 600; color: #fff; }
+        .final-price { font-size: 1.6em; font-weight: 700; color: var(--accent-color-hover); }
+        .separator { border: none; border-top: 1px solid var(--accent-color); opacity: 0.5; margin: 15px 0; }
+        
+        #copySummaryBtn { width: 100%; margin-top: 15px; }
+
+        /* --- Tooltips --- */
+        .tooltip { position: relative; }
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 110%; left: 50%;
+            transform: translateX(-50%);
+            background-color: #222; color: #fff;
+            padding: 8px 12px; border-radius: 6px;
+            font-size: 0.9em; font-weight: normal; line-height: 1.4;
+            white-space: nowrap; z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s, bottom 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .tooltip:hover::after { opacity: 1; visibility: visible; bottom: 125%; }
+        
+        /* --- Top Controls (Currency, Language) --- */
+        .top-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: var(--bg-color);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        .control-group label {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 0.9em;
+        }
+		.top-controls .control-group:nth-child(2) {
+			align-items: flex-end;
+		}
+
+        /* --- Printer Preset Controls --- */
+        .preset-controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto; /* 3 columns */
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* --- Filament Section --- */
+        .filament-item {
+            display: grid;
+            grid-template-columns: 1fr 120px auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .input-with-unit { position: relative; display: flex; align-items: center; }
+        .input-with-unit input { padding-right: 30px; }
+        .input-with-unit span { position: absolute; right: 12px; color: var(--text-color-dim); font-size: 0.9em; pointer-events: none; }
+        
+        .filament-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        
+        /* --- Modal Window --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-box {
+            background: var(--bg-light); border-radius: var(--container-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: 90%; max-width: 500px;
+            border: 1px solid var(--border-color);
+            transform: scale(0.95);
+            transition: all var(--transition-speed) ease;
+        }
+        .modal-overlay.visible .modal-box { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { margin: 0; color: var(--accent-color); }
+        .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border-color); text-align: right; }
+        
+        #newFilamentForm { display: grid; grid-template-columns: 1fr 100px 100px auto; gap: 10px; align-items: center; }
+        #newFilamentForm input { text-align: left; }
+        
+        #filamentLibraryList { margin-top: 20px; }
+        .library-item {
+            display: grid; grid-template-columns: 1fr 100px 100px auto;
+            gap: 10px; align-items: center;
+            padding: 10px; border-radius: 6px;
+            transition: all var(--transition-speed) ease;
+        }
+        .library-item:nth-child(even) { background-color: var(--bg-color); }
+        .library-item:hover { background-color: #555; transform: scale(1.01); }
+        .library-item span { font-size: 0.95em; }
+
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <div class="header">
+            <div class="logo-container">
+                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="creality-logo">
+                    <path d="m3.215 10.33 -1.772 0.01c-0.785 0.029 -1.42 0.737 -1.443 1.613v0.088c0.018 0.903 0.69 1.629 1.51 1.629h1.705c0.01 0 0.02 -0.011 0.02 -0.024v-0.603a0.022 0.022 0 0 0 -0.02 -0.022H1.508c-0.501 0 -0.92 -0.443 -0.928 -1.001 -0.007 -0.569 0.405 -1.034 0.912 -1.034l1.723 -0.007c0.01 0 0.02 -0.01 0.02 -0.022v-0.603c0 -0.013 -0.01 -0.024 -0.02 -0.024zm0.412 0c-0.011 0 -0.02 0.011 -0.02 0.024v3.292c0 0.013 0.009 0.024 0.02 0.024h0.54c0.012 0 0.02 -0.011 0.02 -0.024V11c0 -0.012 0.009 -0.021 0.02 -0.021h1.606c0.168 0 0.314 0.145 0.32 0.333 0.006 0.198 -0.137 0.36 -0.313 0.36l-1.533 0.002c-0.018 0 -0.028 0.023 -0.016 0.037l1.75 1.95c0.004 0.005 0.009 0.009 0.014 0.009H6.8c0.017 0 0.026 -0.025 0.014 -0.04L5.64 12.32h0.183c0.496 0 0.898 -0.454 0.89 -1.01 -0.006 -0.546 -0.416 -0.98 -0.905 -0.98h-2.18Zm4.873 0c-0.827 0 -1.5 0.75 -1.5 1.67 0 0.92 0.673 1.67 1.5 1.67h1.68c0.01 0 0.02 -0.011 0.02 -0.024v-0.603c0 -0.012 -0.01 -0.022 -0.02 -0.022H8.5c-0.404 0 -0.75 -0.292 -0.871 -0.697h2.55c0.012 0 0.02 -0.01 0.02 -0.023v-0.604c0 -0.012 -0.008 -0.021 -0.02 -0.021h-2.55c0.123 -0.405 0.468 -0.697 0.872 -0.697h1.68c0.01 0 0.02 -0.012 0.02 -0.024v-0.601c0 -0.013 -0.01 -0.024 -0.02 -0.024zm3.709 0c-0.013 0 -0.026 0.009 -0.033 0.024l-1.7 3.28c-0.007 0.016 0 0.036 0.016 0.036h0.625a0.02 0.02 0 0 0 0.018 -0.012l1.056 -2.045a0.02 0.02 0 0 1 0.036 0l0.71 1.375c0.008 0.015 -0.002 0.033 -0.017 0.033h-0.928c-0.007 0 -0.012 0.005 -0.015 0.012l-0.313 0.602c-0.008 0.015 0.002 0.033 0.018 0.033h2.242c0.015 0 0.025 -0.018 0.017 -0.033l-1.697 -3.281a0.041 0.041 0 0 0 -0.035 -0.024zm2.03 0.002c-0.01 0 -0.02 0.01 -0.02 0.022v2.94c0 0.207 0.15 0.376 0.336 0.376h2.148c0.01 0 0.022 -0.011 0.022 -0.024v-0.603a0.022 0.022 0 0 0 -0.022 -0.022H14.82A0.022 0.022 0 0 1 14.8 13v-2.646c0 -0.013 -0.01 -0.022 -0.02 -0.022h-0.54zm2.84 0c-0.01 0 -0.02 0.01 -0.02 0.022v3.292c0 0.013 0.01 0.024 0.02 0.024h0.542c0.01 0 0.02 -0.011 0.02 -0.024v-3.292c0 -0.013 -0.01 -0.022 -0.02 -0.022h-0.54zm0.85 0c-0.01 0 -0.02 0.01 -0.02 0.022v0.601c0 0.012 0.01 0.024 0.02 0.024h1.169c0.01 0 0.02 0.009 0.02 0.021v2.646c0 0.013 0.01 0.022 0.02 0.022h0.54c0.01 0 0.02 -0.01 0.02 -0.022V11a0.02 0.02 0 0 1 0.02 -0.021h1.172a0.02 0.02 0 0 1 0.015 0.007l1.018 1.354a0.02 0.02 0 0 1 0.004 0.014v1.292c0 0.013 0.008 0.024 0.02 0.024h0.54c0.011 0 0.02 -0.011 0.02 -0.024v-1.292c0 -0.006 0.003 -0.01 0.006 -0.014l1.482 -1.97c0.011 -0.016 0.001 -0.038 -0.016 -0.038h-0.705a0.02 0.02 0 0 0 -0.015 0.008l-1.026 1.363a0.02 0.02 0 0 1 -0.03 0l-1.026 -1.363a0.02 0.02 0 0 0 -0.016 -0.008z"/>
+                </svg>
+                <span class="logo-subtext" data-lang-key="logoSubtext">Imagine It, Make It, Cost It</span>
+            </div>
+        </div>
+        
+        <div class="content">
+
+            <div class="top-controls">
+                <div class="control-group">
+                    <label for="currencySwitcher" data-lang-key="currencyLabel">Валюта</label>
+                    <select id="currencySwitcher" onchange="saveSettings(); calculate();">
+                        <option value="₴">₴</option>
+                        <option value="$">$</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="languageSwitcher" data-lang-key="languageLabel">Мова</label>
+                    <button id="languageSwitcher" class="btn-secondary" onclick="toggleLanguage()"></button>
+                </div>
+            </div>
+
+            <details open>
+                <summary class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12-.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                    <span data-lang-key="printerSettings">Параметри Принтера</span>
+                </summary>
+                <div class="details-content">
+                    <div class="preset-controls">
+                        <select id="printerPresetSelect" onchange="applyPreset()"></select>
+                        <button class="btn-secondary" onclick="savePreset()" data-lang-key="savePreset">Зберегти</button>
+                        <button class="btn-danger" onclick="deletePreset()" data-lang-key="deletePreset">Видалити</button>
+                    </div>
+                    <div class="input-group">
+                        <label for="printerCost" class="tooltip" data-lang-key="printerCost" data-lang-tooltip-key="printerCostTooltip">Ціна принтера</label>
+                        <input type="number" id="printerCost" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label for="printerLifespan" class="tooltip" data-lang-key="printerLifespan" data-lang-tooltip-key="printerLifespanTooltip">Термін служби, годин</label>
+                        <input type="number" id="printerLifespan" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label for="avgPower" class="tooltip" data-lang-key="avgPower" data-lang-tooltip-key="avgPowerTooltip">Середня потужність, кВт</label>
+                        <input type="number" id="avgPower" step="0.01" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label for="electricityPrice" class="tooltip" data-lang-key="electricityPrice" data-lang-tooltip-key="electricityPriceTooltip">Ціна 1 кВт*год</label>
+                        <input type="number" id="electricityPrice" step="0.01" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label for="maintenancePercent" class="tooltip" data-lang-key="maintenancePercent" data-lang-tooltip-key="maintenancePercentTooltip">Обслуговування, % від аморт.</label>
+                        <input type="number" id="maintenancePercent" oninput="calculate()">
+                    </div>
+                </div>
+            </details>
+
+            <fieldset>
+                <legend class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM9.09 17.5c-1.39-0.33-2.56-1.12-3.32-2.18l1.43-1.43c.59.8 1.41 1.39 2.37 1.68v1.93zM12 19.95c-0.53 0-1.04-0.09-1.53-0.25l0.39-3.47 1.15 1.15c0.31-0.08 0.61-0.19 0.9-0.33l1.12 1.12c-0.61 0.58-1.34 1.04-2.15 1.36-0.29.1-0.59.15-0.88.15zM12 8.5c-1.93 0-3.5 1.57-3.5 3.5S10.07 15.5 12 15.5s3.5-1.57 3.5-3.5S13.93 8.5 12 8.5zm8.91 5.58c-0.76 1.06-1.93 1.85-3.32 2.18v-1.93c0.96-0.29 1.78-0.88 2.37-1.68l1.43 1.43zM15.38 6.72C14.77 6.14 14.04 5.68 13.23 5.36L12.11 4.24c0.9-0.14 1.82-0.14 2.72 0l1.12 1.12c-0.29.14-0.59.25-0.9.33l1.15 1.15 0.39 3.47C16.99 9.8 16.48 9.3 16.48 8.7c0-0.73 0.29-1.4 0.77-1.98zM4.05 12c0-0.53 0.09-1.04 0.25-1.53l3.47 0.39 1.15 1.15C8.84 11.7 8.73 11.4 8.6 11.12L7.48 9.99C6.9 10.6 6.44 11.33 6.12 12.15L4.24 11.03C4.1 11.34 4.05 11.66 4.05 12z"/></svg>
+                    <span data-lang-key="usedMaterials">Використані Матеріали</span>
+                </legend>
+                <div class="content-wrapper">
+                    <div id="filamentList"></div>
+                    <div class="filament-controls">
+                        <button class="btn-primary btn-icon" onclick="addMaterialLine()">+</button>
+                        <button class="btn-secondary" onclick="openFilamentModal()" data-lang-key="manageFilaments">Керувати філаментами</button>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4H7V7h10v2z"/></svg>
+                    <span data-lang-key="orderCost">Розрахунок Замовлення</span>
+                </legend>
+                <div class="content-wrapper">
+                    <div class="input-group time-input-group">
+                        <label for="printTimeHours" class="tooltip" data-lang-key="printTime" data-lang-tooltip-key="printTimeTooltip">Час друку</label>
+                        <span class="time-label-spacer"></span>
+                        <span class="time-label" data-lang-key="hours">Години</span>
+                        <span class="time-label" data-lang-key="minutes">Хвилини</span>
+                        <span class="time-label-spacer"></span>
+                        <input type="number" id="printTimeHours" value="1" min="0" oninput="calculate()">
+                        <input type="number" id="printTimeMinutes" value="0" min="0" max="59" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label for="postProcessTime" class="tooltip" data-lang-key="postProcessTime" data-lang-tooltip-key="postProcessTimeTooltip">Постобробка, годин</label>
+                        <input type="number" id="postProcessTime" value="0.5" step="0.1" min="0" oninput="saveSettings(); calculate();">
+                    </div>
+                    <div class="input-group">
+                        <label for="manualWorkRate" class="tooltip" data-lang-key="manualWorkRate" data-lang-tooltip-key="manualWorkRateTooltip">Ваша ставка, за годину</label>
+                        <input type="number" id="manualWorkRate" value="250" min="0" oninput="saveSettings(); calculate();">
+                    </div>
+                    <div class="input-group">
+                        <label for="riskPercent" class="tooltip" data-lang-key="riskPercent" data-lang-tooltip-key="riskPercentTooltip">Відсоток на брак / ризики, %</label>
+                        <input type="number" id="riskPercent" value="10" min="0" oninput="saveSettings(); calculate();">
+                    </div>
+                     <div class="input-group">
+                        <label for="markupPercent" class="tooltip" data-lang-key="markupPercent" data-lang-tooltip-key="markupPercentTooltip">Націнка, %</label>
+                        <input type="number" id="markupPercent" value="150" min="0" oninput="saveSettings(); calculate();">
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="results-container">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    <span data-lang-key="finalCalc">Підсумковий розрахунок</span>
+                </h3>
+                <div class="result-item">
+                    <span data-lang-key="mhr">Ставка години (MHR):</span>
+                    <span id="resultMHR">0.00 /год</span>
+                </div>
+                <div class="result-item">
+                    <span data-lang-key="gramPrice">Ціна 1г (матеріал 1):</span>
+                    <span id="resultGramPrice">0.00</span>
+                </div>
+                <hr class="separator" style="opacity: 0.2;">
+                <div class="result-item">
+                    <span data-lang-key="materialCost">Вартість матеріалів (Σ):</span>
+                    <span id="resultMaterialCost">0.00</span>
+                </div>
+                <div class="result-item">
+                    <span data-lang-key="machineCost">Вартість роботи принтера:</span>
+                    <span id="resultMachineCost">0.00</span>
+                </div>
+                <div class="result-item">
+                    <span data-lang-key="manualCost">Вартість ручної роботи:</span>
+                    <span id="resultManualCost">0.00</span>
+                </div>
+                <div class="result-item">
+                    <span data-lang-key="riskCost">Вартість ризиків (брак):</span>
+                    <span id="resultRiskCost">0.00</span>
+                </div>
+                <div class="result-item total-cost" style="border-color: var(--accent-color);">
+                    <span data-lang-key="totalCost"><b>Повна Собівартість:</b></span>
+                    <span id="resultTotalCost" style="font-weight: 700;">0.00</span>
+                </div>
+                <div class="result-item profit">
+                    <span data-lang-key="profit">Чистий дохід (Націнка):</span>
+                    <span id="resultProfit">0.00</span>
+                </div>
+                <hr class="separator">
+                <div class="result-item final-price">
+                    <span data-lang-key="clientPrice">Ціна для клієнта:</span>
+                    <span id="resultFinalPrice">0.00</span>
+                </div>
+                
+                <button id="copySummaryBtn" class="btn-primary" onclick="copySummary()" data-lang-key="copySummary">Скопіювати підсумок для клієнта</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="filamentModal" onclick="closeFilamentModal(event)">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 data-lang-key="filamentLibrary">Бібліотека філаментів</h3>
+                <button class="btn-danger btn-icon" onclick="closeFilamentModal(event)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4 data-lang-key="addNew">Додати новий</h4>
+                <form id="newFilamentForm" onsubmit="addFilament(event)">
+                    <input type="text" id="newFilamentName" data-lang-placeholder-key="filamentNamePlaceholder" placeholder="Назва (напр. PLA Білий)" required>
+                    <input type="number" id="newFilamentPrice" data-lang-placeholder-key="pricePlaceholder" placeholder="Ціна" min="0" required>
+                    <input type="number" id="newFilamentWeight" data-lang-placeholder-key="weightPlaceholder" placeholder="Вага (г)" value="1000" min="1" required>
+                    <button type="submit" class="btn-primary btn-icon">+</button>
+                </form>
+                
+                <h4 style="margin-top: 30px;" data-lang-key="savedFilaments">Збережені</h4>
+                <div id="filamentLibraryList"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeFilamentModal(event)" data-lang-key="close">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Language & Translation ---
+        const langStrings = {
+            uk: {
+                logoSubtext: "Imagine It, Make It, Cost It",
+                currencyLabel: "Валюта",
+                languageLabel: "Мова",
+                printerSettings: "Параметри Принтера",
+                savePreset: "Зберегти",
+                deletePreset: "Видалити",
+                printerCost: "Ціна принтера",
+                printerCostTooltip: "Повна вартість покупки принтера у вибраній валюті.",
+                printerLifespan: "Термін служби, годин",
+                printerLifespanTooltip: "Планований термін служби до заміни чи ремонту. 5000 годин - стандарт.",
+                avgPower: "Середня потужність, кВт",
+                avgPowerTooltip: "Середнє споживання в кВт. K2 Pro ~0.3 кВт.",
+                electricityPrice: "Ціна 1 кВт*год",
+                electricityPriceTooltip: "Вартість однієї кіловат-години за вашим тарифом.",
+                maintenancePercent: "Обслуговування, % від аморт.",
+                maintenancePercentTooltip: "Відсоток від амортизації на запчастини (сопла, ремені). 15-20% - 'страховка'.",
+                usedMaterials: "Використані Матеріали",
+                manageFilaments: "Керувати філаментами",
+                orderCost: "Розрахунок Замовлення",
+                printTime: "Час друку",
+                printTimeTooltip: "Час друку деталі з вашого слайсера.",
+                hours: "Години",
+                minutes: "Хвилини",
+                postProcessTime: "Постобробка, годин",
+                postProcessTimeTooltip: "Ваш час на зняття підтримок, шліфування, збірку (в годинах). 0.5 = 30 хвилин.",
+                manualWorkRate: "Ваша ставка, за годину",
+                manualWorkRateTooltip: "Вартість години ВАШОЇ ручної роботи (постобробка, моделювання).",
+                riskPercent: "Відсоток на брак / ризики, %",
+                riskPercentTooltip: "Відсоток 'на брак' та ризики. Додається до загальної собівартості.",
+                markupPercent: "Націнка, %",
+                markupPercentTooltip: "Ваша націнка на ПІДСУМКОВУ собівартість. 100% = x2.",
+                finalCalc: "Підсумковий розрахунок",
+                mhr: "Ставка години (MHR):",
+                gramPrice: "Ціна 1г (матеріал 1):",
+                materialCost: "Вартість матеріалів (Σ):",
+                machineCost: "Вартість роботи принтера:",
+                manualCost: "Вартість ручної роботи:",
+                riskCost: "Вартість ризиків (брак):",
+                totalCost: "<b>Повна Собівартість:</b>",
+                profit: "Чистий дохід (Націнка):",
+                clientPrice: "Ціна для клієнта:",
+                copySummary: "Скопіювати підсумок для клієнта",
+                filamentLibrary: "Бібліотека філаментів",
+                addNew: "Додати новий",
+                filamentNamePlaceholder: "Назва (напр. PLA Білий)",
+                pricePlaceholder: "Ціна",
+                weightPlaceholder: "Вага (г)",
+                savedFilaments: "Збережені",
+                close: "Закрити",
+                savePresetPrompt: "Введіть ім'я для нового пресету:",
+                deletePresetConfirm: "Ви впевнені, що хочете видалити пресет",
+                deleteLastPresetError: "Неможливо видалити останній пресет!",
+                deleteFilamentConfirm: "Ви впевнені, що хочете видалити",
+                summaryTitle: "Розрахунок вартості 3D-друку:",
+                summaryTime: "Час друку:",
+                summaryWeight: "Загальна вага:",
+                summaryMaterials: "Матеріали:",
+                summaryTotal: "Підсумкова вартість:",
+                copied: "Скопійовано!",
+                langBtnToggle: "EN" // Text on button when lang is UK
+            },
+            en: {
+                logoSubtext: "Imagine It, Make It, Cost It",
+                currencyLabel: "Currency",
+                languageLabel: "Language",
+                printerSettings: "Printer Settings",
+                savePreset: "Save",
+                deletePreset: "Delete",
+                printerCost: "Printer Cost",
+                printerCostTooltip: "Total purchase cost of the printer in the selected currency.",
+                printerLifespan: "Lifespan, hours",
+                printerLifespanTooltip: "Planned service life before replacement or repair. 5000 hours is standard.",
+                avgPower: "Average Power, kW",
+                avgPowerTooltip: "Average consumption in kW. K2 Pro ~0.3 kW.",
+                electricityPrice: "Price per kWh",
+                electricityPriceTooltip: "The cost of one kilowatt-hour according to your tariff.",
+                maintenancePercent: "Maintenance, % of amort.",
+                maintenancePercentTooltip: "Percentage of amortization for spare parts (nozzles, belts). 15-20% is a good 'insurance'.",
+                usedMaterials: "Used Materials",
+                manageFilaments: "Manage Filaments",
+                orderCost: "Order Calculation",
+                printTime: "Print Time",
+                printTimeTooltip: "Part print time from your slicer.",
+                hours: "Hours",
+                minutes: "Minutes",
+                postProcessTime: "Post-processing, hours",
+                postProcessTimeTooltip: "Your time for support removal, sanding, assembly (in hours). 0.5 = 30 minutes.",
+                manualWorkRate: "Your Rate, per hour",
+                manualWorkRateTooltip: "The cost of YOUR manual labor (post-processing, modeling).",
+                riskPercent: "Failure / Risk, %",
+                riskPercentTooltip: "Percentage for 'failures' and risks. Added to the total cost.",
+                markupPercent: "Markup, %",
+                markupPercentTooltip: "Your markup on the FINAL cost. 100% = 2x.",
+                finalCalc: "Final Calculation",
+                mhr: "Machine Hour Rate (MHR):",
+                gramPrice: "Price per 1g (Mat 1):",
+                materialCost: "Material Cost (Total):",
+                machineCost: "Machine Work Cost:",
+                manualCost: "Manual Labor Cost:",
+                riskCost: "Risk Cost (Failures):",
+                totalCost: "<b>Full Cost:</b>",
+                profit: "Net Profit (Markup):",
+                clientPrice: "Price for Client:",
+                copySummary: "Copy Summary for Client",
+                filamentLibrary: "Filament Library",
+                addNew: "Add New",
+                filamentNamePlaceholder: "Name (e.g. PLA White)",
+                pricePlaceholder: "Price",
+                weightPlaceholder: "Weight (g)",
+                savedFilaments: "Saved Filaments",
+                close: "Close",
+                savePresetPrompt: "Enter a name for the new preset:",
+                deletePresetConfirm: "Are you sure you want to delete the preset",
+                deleteLastPresetError: "You cannot delete the last preset!",
+                deleteFilamentConfirm: "Are you sure you want to delete",
+                summaryTitle: "3D Print Cost Estimate:",
+                summaryTime: "Print Time:",
+                summaryWeight: "Total Weight:",
+                summaryMaterials: "Materials:",
+                summaryTotal: "Total Cost:",
+                copied: "Copied!",
+                langBtnToggle: "UA" // Text on button when lang is EN
+            }
+        };
+
+        function toggleLanguage() {
+            const currentLang = db.userSettings.language;
+            const newLang = (currentLang === 'uk') ? 'en' : 'uk';
+            db.userSettings.language = newLang;
+            saveData();
+            
+            translateUI(newLang);
+            renderFilamentSelects(); // Update text in dropdowns
+            calculate(); // Update "/hr" text in MHR
+        }
+
+        function translateUI(lang) {
+            if (!langStrings[lang]) lang = 'uk';
+            const t = langStrings[lang];
+            
+            document.getElementById('htmlLang').lang = lang;
+            document.title = (lang === 'uk' ? 'Калькулятор 3D-друку' : '3D Print Calculator');
+            
+            // Update language toggle button text
+            const langBtn = document.getElementById('languageSwitcher');
+            langBtn.textContent = t.langBtnToggle; // Shows "EN" or "UA"
+            
+            // Translate all elements with data-lang-key
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.dataset.langKey;
+                if (t[key]) el.innerHTML = t[key];
+            });
+            
+            // Translate tooltips
+            document.querySelectorAll('[data-lang-tooltip-key]').forEach(el => {
+                const key = el.dataset.langTooltipKey;
+                if (t[key]) el.dataset.tooltip = t[key];
+            });
+            
+            // Translate placeholders
+            document.querySelectorAll('[data-lang-placeholder-key]').forEach(el => {
+                const key = el.dataset.langPlaceholderKey;
+                if (t[key]) el.placeholder = t[key];
+            });
+        }
+        
+        // --- 2. Global State & Constants ---
+        
+        let db = {
+            printerPresets: {},
+            filamentLibrary: {},
+            userSettings: {}
+        };
+        
+        const printerFields = ['printerCost', 'printerLifespan', 'avgPower', 'electricityPrice', 'maintenancePercent'];
+        const settingsFields = ['currencySwitcher', 'postProcessTime', 'manualWorkRate', 'riskPercent', 'markupPercent'];
+        const DB_VERSION_KEY = 'calcDB_v5_3'; // Use a versioned key to manage updates
+
+        // --- 3. Initialization & LocalStorage ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            translateUI(db.userSettings.language);
+            renderPrinterPresets();
+            renderFilamentSelects();
+            applyPreset(Object.keys(db.printerPresets)[0]);
+            applySettings();
+            addMaterialLine(true); // Add the first material line
+            calculate();
+        });
+
+        function loadData() {
+            const savedDB = localStorage.getItem(DB_VERSION_KEY);
+            if (savedDB) {
+                db = JSON.parse(savedDB);
+                // Ensure new structures exist if loading from an older version
+                if (!db.userSettings) db.userSettings = {};
+                if (!db.userSettings.language || db.userSettings.language === 'ru') {
+                    db.userSettings.language = 'uk'; // Default to UK if unset or 'ru'
+                }
+            } else {
+                // Default data for first-time load
+                db.printerPresets = {
+                    'k2pro': {
+                        name: 'Creality K2 Pro (Ваш)',
+                        printerCost: 59999,
+                        printerLifespan: 5000,
+                        avgPower: 0.3,
+                        electricityPrice: 4.32,
+                        maintenancePercent: 15
+                    },
+                    'generic': {
+                        name: 'Бюджетний FDM (Ender 3)',
+                        printerCost: 8000,
+                        printerLifespan: 4000,
+                        avgPower: 0.15,
+                        electricityPrice: 4.32,
+                        maintenancePercent: 25
+                    }
+                };
+                db.filamentLibrary = {
+                    'defaultPLA': { id: 'defaultPLA', name: 'Creality PLA (800/1000г)', price: 800, weight: 1000 },
+                    'defaultPETG': { id: 'defaultPETG', name: 'PETG (950/1000г)', price: 950, weight: 1000 }
+                };
+                db.userSettings = {
+                    currencySwitcher: '₴',
+                    language: 'uk',
+                    postProcessTime: 0.5,
+                    manualWorkRate: 250,
+                    riskPercent: 10,
+                    markupPercent: 150
+                };
+                saveData();
+            }
+        }
+        
+        function saveData() {
+            try {
+                localStorage.setItem(DB_VERSION_KEY, JSON.stringify(db));
+            } catch (e) {
+                console.error("Failed to save data:", e);
+                alert("Error: Could not save data. Storage might be full.");
+            }
+        }
+        
+        function saveSettings() {
+            settingsFields.forEach(id => {
+                db.userSettings[id] = document.getElementById(id).value;
+            });
+            saveData();
+        }
+        
+        function applySettings() {
+             settingsFields.forEach(id => {
+                if (db.userSettings[id] !== undefined) {
+                    document.getElementById(id).value = db.userSettings[id];
+                }
+            });
+        }
+        
+        // --- 4. Printer Preset Management ---
+        
+        function renderPrinterPresets() {
+            const select = document.getElementById('printerPresetSelect');
+            select.innerHTML = '';
+            for (const [id, preset] of Object.entries(db.printerPresets)) {
+                const option = new Option(preset.name, id);
+                select.add(option);
+            }
+        }
+        
+        function applyPreset(id) {
+            if (!id) id = document.getElementById('printerPresetSelect').value;
+            const preset = db.printerPresets[id];
+            if (preset) {
+                printerFields.forEach(field => {
+                    document.getElementById(field).value = preset[field];
+                });
+                document.getElementById('printerPresetSelect').value = id;
+                calculate();
+            }
+        }
+        
+        function savePreset() {
+            const t = langStrings[db.userSettings.language];
+            const name = prompt(t.savePresetPrompt, "My Custom Printer");
+            if (!name) return;
+            
+            const id = 'preset_' + Date.now();
+            const newPreset = { name: name };
+            
+            printerFields.forEach(field => {
+                newPreset[field] = parseFloat(document.getElementById(field).value) || 0;
+            });
+            
+            db.printerPresets[id] = newPreset;
+            saveData();
+            renderPrinterPresets();
+            document.getElementById('printerPresetSelect').value = id;
+        }
+
+        function deletePreset() {
+            const t = langStrings[db.userSettings.language];
+            if (Object.keys(db.printerPresets).length <= 1) {
+                alert(t.deleteLastPresetError);
+                return;
+            }
+            
+            const select = document.getElementById('printerPresetSelect');
+            const id = select.value;
+            const name = select.options[select.selectedIndex].text;
+            
+            if (confirm(`${t.deletePresetConfirm} "${name}"?`)) {
+                delete db.printerPresets[id];
+                saveData();
+                renderPrinterPresets();
+                applyPreset(Object.keys(db.printerPresets)[0]);
+            }
+        }
+
+        // --- 5. Filament Library Management (Modal) ---
+        
+        function openFilamentModal() {
+            document.getElementById('filamentModal').classList.add('visible');
+            renderFilamentLibrary();
+        }
+        
+        function closeFilamentModal(event) {
+            // Close if clicking outside the modal box or on a close button
+            if (event.target.id === 'filamentModal' || event.target.classList.contains('btn-secondary') || event.target.classList.contains('btn-danger')) {
+                document.getElementById('filamentModal').classList.remove('visible');
+            }
+        }
+        
+        function renderFilamentLibrary() {
+            const list = document.getElementById('filamentLibraryList');
+            list.innerHTML = '';
+            const currency = db.userSettings.currencySwitcher || '₴';
+            const t = langStrings[db.userSettings.language];
+
+            if (Object.keys(db.filamentLibrary).length === 0) {
+                list.innerHTML = `<span style="color: var(--text-color-dim);">${t.filamentNamePlaceholder}</span>`;
+                return;
+            }
+            
+            for (const [id, f] of Object.entries(db.filamentLibrary)) {
+                list.innerHTML += `
+                    <div class="library-item" id="lib-item-${id}">
+                        <span><b>${f.name}</b></span>
+                        <span style="color: var(--text-color-dim);">${f.price} ${currency}</span>
+                        <span style="color: var(--text-color-dim);">${f.weight} г</span>
+                        <button class="btn-danger btn-icon" onclick="deleteFilament('${id}')">&times;</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function addFilament(event) {
+            event.preventDefault();
+            const name = document.getElementById('newFilamentName').value;
+            const price = parseFloat(document.getElementById('newFilamentPrice').value);
+            const weight = parseFloat(document.getElementById('newFilamentWeight').value);
+            
+            if (!name || !price || !weight) return;
+            
+            const id = 'fila_' + Date.now();
+            db.filamentLibrary[id] = { id, name, price, weight };
+            saveData();
+            renderFilamentLibrary();
+            renderFilamentSelects();
+            
+            document.getElementById('newFilamentName').value = '';
+            document.getElementById('newFilamentPrice').value = '';
+        }
+        
+        function deleteFilament(id) {
+            const t = langStrings[db.userSettings.language];
+            if (confirm(`${t.deleteFilamentConfirm} "${db.filamentLibrary[id].name}"?`)) {
+                const item = document.getElementById(`lib-item-${id}`);
+                item.classList.add('fade-out');
+                
+                // Wait for animation to finish before removing from DB and UI
+                setTimeout(() => {
+                    delete db.filamentLibrary[id];
+                    saveData();
+                    renderFilamentLibrary();
+                    renderFilamentSelects();
+                    calculate();
+                }, 300);
+            }
+        }
+        
+        // --- 6. Used Materials List (Dynamic) ---
+        
+        function addMaterialLine(isFirst = false) {
+            const list = document.getElementById('filamentList');
+            const id = 'mat_' + Date.now();
+            const item = document.createElement('div');
+            item.className = 'filament-item';
+            item.id = id;
+            
+            // Only add delete button if it's not the first line
+            const deleteBtn = isFirst ? '' : `<button class="btn-danger btn-icon" onclick="removeMaterialLine('${id}')">&times;</button>`;
+            
+            item.innerHTML = `
+                <select class="filament-select" onchange="calculate()"></select>
+                <div class="input-with-unit">
+                    <input type="number" class="filament-weight" value="${isFirst ? 50 : 10}" min="0" oninput="calculate()">
+                    <span>г</span>
+                </div>
+                ${deleteBtn}
+            `;
+            list.appendChild(item);
+            renderFilamentSelects(); // Populate the new select
+        }
+        
+        function removeMaterialLine(id) {
+            const item = document.getElementById(id);
+            item.classList.add('fade-out');
+            setTimeout(() => { 
+                item.remove(); 
+                calculate(); 
+            }, 300);
+        }
+
+        function renderFilamentSelects() {
+            const selects = document.querySelectorAll('.filament-select');
+            if (selects.length === 0) return;
+            
+            const t = langStrings[db.userSettings.language];
+            let optionsHTML = '';
+            
+            if (Object.keys(db.filamentLibrary).length === 0) {
+                optionsHTML = `<option value="">-- ${t.addNew} --</option>`;
+            } else {
+                for (const [id, f] of Object.entries(db.filamentLibrary)) {
+                    optionsHTML += `<option value="${id}">${f.name}</option>`;
+                }
+            }
+            
+            // Update all selects, preserving their current value if possible
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = optionsHTML;
+                if (db.filamentLibrary[currentValue]) {
+                    select.value = currentValue;
+                }
+            });
+        }
+        
+        // --- 7. Core Calculation Logic ---
+        
+        function calculate() {
+            const currency = db.userSettings.currencySwitcher || '₴';
+            const t = langStrings[db.userSettings.language];
+            
+            // Get printer settings
+            const printerCost = parseFloat(document.getElementById('printerCost').value) || 0;
+            const printerLifespan = parseFloat(document.getElementById('printerLifespan').value) || 1; // Avoid divide by zero
+            const avgPower = parseFloat(document.getElementById('avgPower').value) || 0;
+            const electricityPrice = parseFloat(document.getElementById('electricityPrice').value) || 0;
+            const maintenancePercent = parseFloat(document.getElementById('maintenancePercent').value) || 0;
+            
+            // Get time settings
+            const printTimeHours = parseFloat(document.getElementById('printTimeHours').value) || 0;
+            const printTimeMinutes = parseFloat(document.getElementById('printTimeMinutes').value) || 0;
+            const printTime = printTimeHours + (printTimeMinutes / 60); // Total print time in hours
+            
+            // Get order cost settings
+            const postProcessTime = parseFloat(db.userSettings.postProcessTime) || 0;
+            const manualWorkRate = parseFloat(db.userSettings.manualWorkRate) || 0;
+            const riskPercent = parseFloat(db.userSettings.riskPercent) || 0;
+            const markupPercent = parseFloat(db.userSettings.markupPercent) || 0;
+
+            // Calculate Machine Hour Rate (MHR)
+            const amortization = printerCost / printerLifespan;
+            const electricityCost = avgPower * electricityPrice;
+            const maintenanceCost = amortization * (maintenancePercent / 100);
+            const mhr = amortization + electricityCost + maintenanceCost;
+            
+            // Calculate machine cost for this job
+            const machineCost = printTime * mhr;
+            
+            // Calculate material cost
+            let totalMaterialCost = 0;
+            let firstFilamentPricePerGram = 0;
+            const materialLines = document.querySelectorAll('.filament-item');
+            
+            materialLines.forEach((line, index) => {
+                const filamentId = line.querySelector('.filament-select').value;
+                const weight = parseFloat(line.querySelector('.filament-weight').value) || 0;
+                const filament = db.filamentLibrary[filamentId];
+                if (filament) {
+                    const pricePerGram = (filament.weight > 0 ? filament.price / filament.weight : 0);
+                    totalMaterialCost += pricePerGram * weight;
+                    if (index === 0) firstFilamentPricePerGram = pricePerGram;
+                }
+            });
+            
+            // Calculate final costs
+            const manualCost = postProcessTime * manualWorkRate;
+            const subtotal = machineCost + totalMaterialCost + manualCost; // Cost before risk
+            const riskCost = subtotal * (riskPercent / 100);
+            const totalCost = subtotal + riskCost; // Total self-cost
+            const profit = totalCost * (markupPercent / 100);
+            const finalPrice = totalCost + profit;
+
+            // Display results
+            const format = (num) => `${num.toFixed(2)} ${currency}`;
+            const hourSuffix = t.hours.toLowerCase().slice(0, 3); // "год" or "hrs"
+            
+            document.getElementById('resultMHR').textContent = `${mhr.toFixed(2)} ${currency}/${hourSuffix}`;
+            document.getElementById('resultGramPrice').textContent = format(firstFilamentPricePerGram);
+            document.getElementById('resultMaterialCost').textContent = format(totalMaterialCost);
+            document.getElementById('resultMachineCost').textContent = format(machineCost);
+            document.getElementById('resultManualCost').textContent = format(manualCost);
+            document.getElementById('resultRiskCost').textContent = format(riskCost);
+            document.getElementById('resultTotalCost').textContent = format(totalCost);
+            document.getElementById('resultProfit').textContent = format(profit);
+            document.getElementById('resultFinalPrice').textContent = format(finalPrice);
+        }
+        
+        // --- 8. Copy to Clipboard ---
+        
+        function copySummary() {
+            const currency = db.userSettings.currencySwitcher || '₴';
+            const t = langStrings[db.userSettings.language];
+
+            // Get time
+            const printTimeHours = parseFloat(document.getElementById('printTimeHours').value) || 0;
+            const printTimeMinutes = parseFloat(document.getElementById('printTimeMinutes').value) || 0;
+            const timeStr = `${printTimeHours} ${t.hours.toLowerCase().slice(0, 3)} ${printTimeMinutes} ${t.minutes.toLowerCase().slice(0, 3)}`;
+            
+            // Get materials
+            let totalWeight = 0;
+            let materialStr = [];
+            const materialLines = document.querySelectorAll('.filament-item');
+            materialLines.forEach(line => {
+                const filamentId = line.querySelector('.filament-select').value;
+                const weight = parseFloat(line.querySelector('.filament-weight').value) || 0;
+                const filament = db.filamentLibrary[filamentId];
+                if (filament) {
+                    totalWeight += weight;
+                    materialStr.push(`${filament.name.split(' (')[0]}: ${weight.toFixed(0)}г`);
+                }
+            });
+            
+            const finalPrice = document.getElementById('resultFinalPrice').textContent;
+            
+            // Build summary text
+            const summaryText = `
+${t.summaryTitle}
+-----------------------------------
+- ${t.summaryTime} ${timeStr}
+- ${t.summaryWeight} ${totalWeight.toFixed(0)} г
+- ${t.summaryMaterials} ${materialStr.join(', ')}
+-----------------------------------
+${t.summaryTotal} ${finalPrice}
+            `.trim().replace(/^\s+/gm, ''); // Remove leading whitespace per line
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(summaryText).then(() => {
+                const btn = document.getElementById('copySummaryBtn');
+                const originalText = btn.textContent;
+                btn.textContent = t.copied;
+                btn.style.backgroundColor = '#555'; // Feedback color
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = ''; // Revert color
+                }, 2000);
+            }).catch(err => console.error('Error copying summary:', err));
+        }
+
+    </script>
+</body>
+</html>
