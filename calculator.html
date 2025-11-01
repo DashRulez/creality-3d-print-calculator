@@ -365,6 +365,111 @@
         .library-item:nth-child(even) { background-color: var(--bg-color); }
         .library-item:hover { background-color: #555; transform: scale(1.01); }
         .library-item span { font-size: 0.95em; }
+		@media (max-width: 480px) {
+            /* --- START: Main Page Responsive Fixes --- */
+            .content {
+                padding: 20px; /* Немного меньше отступы на мобильных */
+            }
+
+            .input-group {
+                grid-template-columns: 1fr; /* 1 колонка: надпись сверху, поле ввода снизу */
+                gap: 8px;
+            }
+
+            .input-group input, 
+            .input-group select {
+                text-align: left; /* Текст в поле ввода лучше смотрится слева, когда поле на всю ширину */
+            }
+
+            .time-input-group {
+                grid-template-columns: 1fr 1fr; /* Для времени: 2 колонки (часы и минуты) */
+                gap: 8px 10px;
+            }
+            
+            .time-input-group label {
+                grid-column: 1 / -1; /* Надпись "Час друку" над обеими колонками */
+                margin-bottom: 0;
+            }
+            
+            .time-input-group .time-label-spacer {
+                display: none; /* Скрываем ненужный отступ */
+            }
+            
+            .time-label {
+                text-align: left; /* Надписи "Години" и "Хвилини" выравниваем по левому краю */
+                padding-right: 0;
+            }
+            /* --- END: Main Page Responsive Fixes --- */
+
+
+            /*
+             * ===================================================================
+             * START: Filament Modal Responsive Styles
+             * ===================================================================
+             */
+            .modal-body {
+                padding: 15px; /* Уменьшаем отступы в модальном окне */
+            }
+
+            /* --- 1. Форма "Додати новий" --- */
+            #newFilamentForm {
+                /* 2 колонки: Цена | Вага */
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            #newFilamentForm input[type="text"] { /* Поле "Назва" */
+                /* Растягиваем на всю ширину */
+                grid-column: 1 / -1;
+            }
+            
+            #newFilamentForm button { /* Кнопка "+" */
+                /* Растягиваем на всю ширину */
+                grid-column: 1 / -1;
+            }
+            
+            #newFilamentForm input {
+                text-align: left; /* Выравниваем текст влево */
+            }
+
+            /* --- 2. Список "Збережені" --- */
+            .library-item {
+                /* 2 колонки: [Текст] | [Кнопка] */
+                grid-template-columns: 1fr auto; 
+                row-gap: 2px; 
+                padding: 10px 5px;
+            }
+            
+            .library-item span {
+                text-align: left; /* Весь текст влево */
+            }
+
+            /* Размещаем текст друг под другом в первой колонке */
+            .library-item span:nth-child(1) { /* Назва */
+                grid-column: 1 / 2;
+                grid-row: 1;
+            }
+            .library-item span:nth-child(2) { /* Цена */
+                grid-column: 1 / 2;
+                grid-row: 2;
+                font-size: 0.9em;
+            }
+            .library-item span:nth-child(3) { /* Вага */
+                grid-column: 1 / 2;
+                grid-row: 3;
+                font-size: 0.9em;
+            }
+            
+            .library-item button { /* Кнопка "X" */
+                grid-column: 2 / 3; /* Вторая колонка */
+                grid-row: 1 / 4;    /* Растягиваем на 3 ряда текста */
+                align-self: center; /* Центрируем */
+            }
+            /* ===================================================================
+             * END: Filament Modal Responsive Styles
+             * ===================================================================
+             */
+        }
 
     </style>
 </head>
